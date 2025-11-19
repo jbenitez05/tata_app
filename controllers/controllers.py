@@ -1,22 +1,17 @@
 # -*- coding: utf-8 -*-
 
 from py4web import action, request, abort, redirect, URL
-from yatl.helpers import A
 from ..core.common import (
     db,
-    session,
-    T,
-    cache,
-    auth,
-    logger,
-    authenticated,
-    unauthenticated,
-    flash,
+    session
 )
 
-
 @action("index")
-@action.uses("index.html", auth, T)
+@action.uses(db,session)
 def index():
-    message = T("Hello World from {name}").format(name='py4web')
-    return dict(message=message)
+    redirect(URL("DevOps"))
+
+@action("DevOps")
+@action.uses(db,session)
+def devops():
+    return dict(message="hi")
