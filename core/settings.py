@@ -55,7 +55,7 @@ SMTP_LOGIN = configuration.get('smtp','login')
 
 # session settings
 SESSION_TYPE = "cookies"
-SESSION_SECRET_KEY = None  # or replace with your own secret
+SESSION_SECRET_KEY = configuration.get('session','key')
 MEMCACHE_CLIENTS = ["127.0.0.1:11211"]
 REDIS_SERVER = "localhost:6379"
 
@@ -116,3 +116,6 @@ DEFAULT_USER_FIRST_NAME = configuration.get('default','fist_name')
 DEFAULT_USER_LAST_NAME = configuration.get('default','last_name')
 DEFAULT_USER_EMAIL = configuration.get('default','email')
 DEFAULT_USER_PASSWORD = configuration.get('default','password')
+
+# API KEY
+API_KEY = configuration.get('API','key')

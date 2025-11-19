@@ -223,3 +223,6 @@ if db(db.auth_user).count() == 0:
         password = CRYPT()(settings.DEFAULT_USER_PASSWORD)[0]
     )
     db.commit()
+
+# API credential
+api_key = settings.API_KEY

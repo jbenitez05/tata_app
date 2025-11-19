@@ -15,3 +15,6 @@ fist_name = John
 last_name = Doe
 email = user@example.com
 password = 12345
+
+[API]
+key = 0
