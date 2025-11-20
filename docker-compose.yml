@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  app1:
+    build: .
+    container_name: devops_app1
+    networks:
+    - tata
+    ports:
+    - "8001:8000"
+
+  app2:
+    build: .
+    container_name: devops_app2
+    networks:
+    - tata
+    ports:
+    - "8002:8000"
+
+  nginx:
+    image: nginx:stable
+    container_name: devops_nginx
+    depends_on:
+    - app1
+    - app2
+    volumes:
+    - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    ports:
+    - "8000:80"
+    networks:
+      - tata
+
+networks:
+  tata:
+    driver: bridge
