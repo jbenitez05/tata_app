@@ -1,13 +1,9 @@
 # -*- coding: utf-8 -*-
 
 from ..core.common import db, Field
-from pydal.validators import *
+from pydal.validators import IS_NOT_IN_DB
 
-### Define your table below
-#
-# db.define_table('thing', Field('name'))
-#
-## always commit your models to avoid problems later
-#
-# db.commit()
-#
+db.define_table("used_jti",
+                    Field("jti", "string", requires=IS_NOT_IN_DB(db, "used_jti.jti"))
+                )
+db.commit()

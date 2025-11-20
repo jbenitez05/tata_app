@@ -31,24 +31,39 @@ def checking_content(data):
         return False
     return True
 
-def checking_headers(headers):
+def checking_api_key(headers):
     key = headers.get("X-Parse-REST-API-Key")
-    token = headers.get("X-JWT-KWY")
-    if not key or not jwt:
+    if not key:
         return False
     if key != api_key:
-        return False
+        return False   
+    return True
+
+def veryfy_and_mark_jwt(token):
+
     try:
         data = jwt.decode(token, SESSION_SECRET_KEY, algorithms=["HS256"])
-    
-    except Exception as e:
-        print(e)
-    #except jwt.ExpiredSignatureError:
-    #    return False
-    #except jwt.InvalidTokenError:
-    #    return False
+    except jwt.ExpiredSignatureError:
+        abort(401, "ERROR")
+    except jwt.InvalidTokenError:
+        abort(401, "ERROR")
 
-    return True
+    jti = data.get("transaction_id")
+    if not jti:
+        abort(401, "ERROR")
+        
+    # comprobando si ya existe este jti
+    existing = db(db.used_jti.jti == jti).select().last()
+    if existing:
+        abort(401, "ERROR")
+
+    try:
+        db.used_jti.insert(jti=jti)
+        db.commit()
+    except Exception as e:
+        abort(401, "ERROR")
+
+    return jti
 
 @action("index")
 def index():
@@ -57,12 +72,18 @@ def index():
 @action("DevOps")
 def devops():
 
-    correct_headers = checking_headers(request.headers)
-    if not correct_headers:
-        return "ERROR"
-
     if request.method != "POST":
         return "ERROR"
+
+    correct_api_key = checking_api_key(request.headers)
+    if not correct_api_key:
+        return "ERROR"  
+
+    token = request.headers.get("X-JWT-KWY")
+    if not token:
+        abort(401, "ERROR")
+
+    veryfy_and_mark_jwt(token)
 
     data = request.json    
     if not data:
@@ -81,10 +102,14 @@ def devops():
 
     return dict(message=f"Hello {data['to']} your message will be send")
 
-@action("generar_token")
-def generar_token():
-    transaction_id = str(uuid.uuid4())
+@action("generate_token")
+def generate_token():
 
+    correct_api_key = checking_api_key(request.headers)
+    if not correct_api_key:
+        return "ERROR"  
+
+    transaction_id = str(uuid.uuid4())
     expire = datetime.utcnow() + timedelta(minutes=5)
 
     payload = {
@@ -95,7 +120,6 @@ def generar_token():
     token = jwt.encode(payload, SESSION_SECRET_KEY, algorithm="HS256")
 
     return dict(
-        transaction_id=transaction_id,
         jwt=token
     )
 
